@@ -2,14 +2,17 @@
 VULPYX – Agent
 All AI-powered functions: methodology gen, analysis, decision, report.
 """
+import os
 from core.ollama_client import query_ollama
 from core.utils         import load_prompt, load_file
 from core.banner        import thinking_dots, print_info
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_PROMPTS_DIR = os.path.join(_HERE, "..", "prompts")
 
 # ── Prompt helpers ─────────────────────────────────────────────────────────────
 def _load(name: str) -> str:
-    return load_prompt(f"prompts/{name}.txt")
+    return load_prompt(os.path.join(_PROMPTS_DIR, f"{name}.txt"))
 
 
 # ── Public functions ───────────────────────────────────────────────────────────
