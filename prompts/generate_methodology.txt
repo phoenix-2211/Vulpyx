@@ -1,0 +1,33 @@
+You are generating the next penetration testing step for a live engagement.
+
+Context from previous steps:
+{context}
+
+Your task:
+- Review what has already been done (from context above)
+- Select ONE logical next step that has NOT been tried yet
+- Choose based on what the evidence actually suggests
+- Do NOT repeat a step already done
+- Do NOT suggest exploitation without confirmed vulnerability
+
+STRICT OUTPUT FORMAT (use exactly this, no extras):
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOOL:
+<tool name>
+
+COMMAND:
+<exact command – include real flags and replace TARGET with actual target>
+
+PURPOSE:
+<1–2 lines explaining WHY this step is the logical next move>
+
+EXPECTED OUTPUT:
+<what we hope to discover with this step>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Rules:
+- Only suggest tools available in Kali Linux
+- The command must be copy-paste ready for a terminal
+- No markdown, no bullet points outside the format above
+- If there is truly nothing more to try, output: EXHAUSTED

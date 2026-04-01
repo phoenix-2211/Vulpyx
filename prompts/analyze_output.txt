@@ -1,0 +1,36 @@
+Analyze the following penetration testing data with precision.
+
+{context}
+
+INSTRUCTIONS:
+- Extract only facts that are PRESENT in the data above
+- Do NOT infer services that are not shown
+- Do NOT assume vulnerabilities without direct evidence
+- Flag uncertainty clearly
+
+STRICT OUTPUT FORMAT:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINDINGS:
+• <fact 1 – directly from output>
+• <fact 2 – directly from output>
+  (list only what the data shows)
+
+OPEN PORTS / SERVICES:
+• <port/service if present, or "None detected">
+
+VULNERABILITY DETECTED:
+YES / NO / INSUFFICIENT EVIDENCE
+
+IF YES:
+  Name:        <exact vuln name, no invention>
+  Description: <1–2 line description based on output>
+  Evidence:    <quote the specific output line that proves it>
+
+CONFIDENCE:
+LOW / MEDIUM / HIGH
+(LOW if guessing, HIGH only if output explicitly confirms)
+
+RECOMMENDED NEXT STEP:
+<single most logical next tool and command>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
