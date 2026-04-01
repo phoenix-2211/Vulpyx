@@ -64,7 +64,7 @@ def _query_nvd(keyword: str) -> list[dict]:
                 "resultsPerPage": MAX_CVES,
             },
             timeout=TIMEOUT,
-            headers={"User-Agent": "VULPYX/2.0"},
+            headers={"User-Agent": "Vulpyx/3.0"},
         )
         if resp.status_code != 200:
             return []
