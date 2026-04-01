@@ -25,6 +25,7 @@ def _empty_session(project: str, target: str, base: str) -> dict:
         "created":       datetime.datetime.now().isoformat(),
         "last_updated":  datetime.datetime.now().isoformat(),
         "target_type":   None,
+        "strategy_hint": "",       # populated by phase_target_detection
         "recon_done":    False,
         "recon_results": {},        # { tool: output_text }
         "recon_analysis":"",
