@@ -79,8 +79,8 @@ def _run_tool(name: str, tool_cfg: dict, target: str, outfile: str) -> str:
     except Exception as e:
         output  = f"[ERROR] {name}: {e}"
         success = False
-
-    bar.finish(success)
+    finally:
+        bar.finish(success if 'success' in dir() else False)
 
     # Also save to file
     save_file(outfile, output)
@@ -95,10 +95,16 @@ def run_recon_phase(target: str, recon_dir: str) -> dict[str, str]:
     """
     ensure_dir(recon_dir)
 
+    # Some tools have different binary names than their config key
+    _BINARY_ALIASES = {
+        "theharvester": "theHarvester",
+    }
+
     available = {
         name: cfg
         for name, cfg in RECON_TOOLS.items()
-        if cmd_available(name) or cmd_available(name.lower())
+        if cmd_available(_BINARY_ALIASES.get(name, name))
+           or cmd_available(name.lower())
     }
 
     if not available:
