@@ -43,7 +43,7 @@ VULPYX is a **human-in-the-loop AI pentesting assistant** that runs entirely on 
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/vulpyx.git
+git clone https://github.com/YOUR_USERNAME/vulpyx.git](https://github.com/phoenix-2211/Vulpyx.git
 cd vulpyx
 
 # 2. Run setup (installs tools, Ollama, model — ONE command)
