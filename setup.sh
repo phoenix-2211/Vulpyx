@@ -125,9 +125,28 @@ print_info "Pulling AI model: qwen2.5-coder:1.5b"
 print_info "This is a ~1 GB download. Please wait..."
 echo ""
 
-ollama pull qwen2.5-coder:1.5b
+# Run ollama pull in background, show a clean spinner instead of raw progress
+ollama pull qwen2.5-coder:1.5b &>/tmp/ollama_pull.log &
+PULL_PID=$!
 
-print_ok "Model ready: qwen2.5-coder:1.5b"
+spinner=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏' )
+i=0
+while kill -0 "$PULL_PID" 2>/dev/null; do
+    printf "\r  ${CYN}[${spinner[$i]}]${R}  Downloading model..." 
+    i=$(( (i + 1) % ${#spinner[@]} ))
+    sleep 0.1
+done
+printf "\r                                        \r"  # clear spinner line
+
+wait "$PULL_PID"
+PULL_EXIT=$?
+
+if [[ $PULL_EXIT -eq 0 ]]; then
+    print_ok "Model ready: qwen2.5-coder:1.5b"
+else
+    print_err "Model pull failed. Check /tmp/ollama_pull.log for details."
+    exit 1
+fi
 
 # ── Permissions ────────────────────────────────────────────────────
 print_sep
