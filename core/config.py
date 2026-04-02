@@ -26,12 +26,12 @@ RECON_TOOLS = {
         "apt":  "nikto",
     },
     "gobuster": {
-        "cmd":  "gobuster dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -o {outfile}",
+        "cmd":  "test -f /usr/share/wordlists/dirb/common.txt && gobuster dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -o {outfile} || echo '[SKIP] wordlist not found: /usr/share/wordlists/dirb/common.txt'",
         "desc": "Directory/file brute-force",
         "apt":  "gobuster",
     },
     "ffuf": {
-        "cmd":  "ffuf -u http://{target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -o {outfile}",
+        "cmd":  "test -f /usr/share/wordlists/dirb/common.txt && ffuf -u http://{target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -o {outfile} -of json || echo '[SKIP] wordlist not found: /usr/share/wordlists/dirb/common.txt'",
         "desc": "Fast web fuzzer for hidden paths",
         "apt":  "ffuf",
     },
