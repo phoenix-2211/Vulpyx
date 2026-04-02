@@ -215,7 +215,14 @@ def phase_methodology(session: dict) -> dict:
             print_warn("AI: All logical steps exhausted.")
             break
 
-        # ── User input ────────────────────────────────────────────────────────
+        # ── Display methodology clearly ───────────────────────────────────────
+        tw = _tw()
+        print(f"\n{CYN}{'═' * tw}{R}")
+        print(f"  {YEL}METHODOLOGY STEP {step}  —  GENERATED COMMAND{R}")
+        print(f"{CYN}{'─' * tw}{R}")
+        for line in method.strip().splitlines():
+            print(f"  {line}")
+        print(f"{CYN}{'═' * tw}{R}\n")
         _sep("═", CYN)
         print(f"\n  {YEL}YOUR TURN{R}  — Run the command above in your Kali terminal.\n")
         print_info("Paste the full output below.")
