@@ -92,6 +92,7 @@ def _run_tool(name: str, tool_cfg: dict, target: str, outfile: str) -> str:
     try:
         result = subprocess.run(
             cmd, shell=True,
+            stdin=subprocess.DEVNULL,   # ← tools must NEVER touch terminal stdin
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
