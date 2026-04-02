@@ -11,7 +11,7 @@ import requests
 from core.config import OLLAMA_URL, get_model
 from core.banner import MGN, CYN, GRN, YEL, RED, DIM, R
 
-# ── Anti-hallucination prefix (kept SHORT to save context window) ──────────────
+# ── Anti-hallucination prefix (kept SHORT to save context window) 
 _STRICT_PREFIX = (
     "You are a precise penetration testing assistant on Kali Linux.\n"
     "RULES: Never invent CVEs/tool outputs. Only report what is in the input.\n"
