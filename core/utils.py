@@ -58,15 +58,29 @@ def run_cmd(cmd: str) -> tuple[int, str]:
 def multiline_input(prompt: str) -> str:
     """
     Collect multi-line input until the user types END (alone on a line).
-    Returns the collected text.
+    Recovers stdin from /dev/tty if it was broken by a subprocess.
     """
+    import sys
+
+    # Recover stdin if broken by subprocess
+    if sys.stdin.closed or not sys.stdin.readable():
+        try:
+            sys.stdin = open("/dev/tty", "r")
+        except Exception:
+            pass
+
     print(prompt)
     lines = []
     while True:
         try:
             line = input()
         except EOFError:
-            break
+            # stdin broken mid-input — try to reopen
+            try:
+                sys.stdin = open("/dev/tty", "r")
+                line = input()
+            except Exception:
+                break
         if line.strip().upper() == "END":
             break
         lines.append(line)
