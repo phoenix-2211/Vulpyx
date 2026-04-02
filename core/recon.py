@@ -120,10 +120,14 @@ def run_recon_phase(target: str, recon_dir: str) -> dict[str, str]:
     """
     ensure_dir(recon_dir)
 
+    # Some tools install under a different binary name than config key
+    _BINARY_ALIASES = {"theharvester": "theHarvester"}
+
     available = {
         name: cfg
         for name, cfg in RECON_TOOLS.items()
-        if cmd_available(name) or cmd_available(name.lower())
+        if cmd_available(_BINARY_ALIASES.get(name, name))
+           or cmd_available(name.lower())
     }
 
     if not available:
