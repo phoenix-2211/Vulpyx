@@ -8,7 +8,7 @@ import glob
 import datetime
 
 from core.banner import (
-    print_info, print_ok, print_warn,
+    RED, print_info, print_ok, print_warn,
     GRN, YEL, CYN, MGN, WHT, DIM, R, BLD, _tw, _hr
 )
 from core.utils import ensure_dir, save_file
@@ -66,6 +66,9 @@ def list_sessions(projects_dir: str) -> list[dict]:
                 s = json.load(f)
             s["_path"] = os.path.dirname(path)
             sessions.append(s)
+        except json.JSONDecodeError:
+            print_warn(f"Corrupt session file skipped: {path}")
+            continue
         except Exception:
             continue
     return sessions
@@ -127,9 +130,14 @@ def resume_prompt(projects_dir: str) -> dict | None:
     try:
         idx = int(choice) - 1
         if 0 <= idx < len(incomplete):
-            chosen = incomplete[idx]
+            chosen  = incomplete[idx]
             session = load_session(chosen["_path"])
-            print_ok(f"Resuming: {WHT}{session['project']}{R} → {session['target']}")
+            # Validate base path still exists
+            if not os.path.exists(session.get("base", "")):
+                print_warn(f"Session folder missing: {session.get('base')}")
+                print_warn("Cannot resume — folder may have been moved or deleted.")
+                return None
+            print_ok(f"Resuming: {WHT}{session['project']}{R} → {session['target']}") # type: ignore
             return session
     except (ValueError, IndexError):
         pass
