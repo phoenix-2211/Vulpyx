@@ -14,8 +14,8 @@ OUTPUT FORMAT (markdown):
 # VULPYX – Penetration Test Report
 
 ## Target Information
-- **Target:** <target>
-- **Date:** <today>
+- **Target:** (extract from engagement data above)
+- **Date:** (use today's date)
 - **Methodology:** Human-in-the-Loop AI-Guided Pentesting
 
 ---
