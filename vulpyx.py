@@ -205,7 +205,7 @@ def phase_methodology(session: dict) -> dict:
         clear_screen(); show_banner()
         show_section(f"Methodology {step} — AI Generates Next Step")
 
-        method = generate_methodology(context, step)
+        method = generate_methodology(context, step, recon_combined)
         save_file(
             os.path.join(session["base"], "methodology", f"step_{step}_plan.txt"),
             method
