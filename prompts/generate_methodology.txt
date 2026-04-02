@@ -29,5 +29,6 @@ EXPECTED OUTPUT:
 Rules:
 - Only suggest tools available in Kali Linux
 - The command must be copy-paste ready for a terminal
+- Replace TARGET with the ACTUAL target IP or domain from the context above
 - No markdown, no bullet points outside the format above
 - If there is truly nothing more to try, output: EXHAUSTED
