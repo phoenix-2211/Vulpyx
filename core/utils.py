@@ -19,12 +19,20 @@ def save_file(path: str, data: str):
 
 
 def load_file(path: str) -> str:
-    with open(path, "r", encoding="utf-8") as f:
-        return f.read()
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+    except Exception as e:
+        return f"[ERROR reading {path}: {e}]"
 
 
 def load_prompt(path: str) -> str:
-    return load_file(path)
+    content = load_file(path)
+    if not content:
+        raise FileNotFoundError(f"Prompt file missing or empty: {path}")
+    return content
 
 
 def cmd_available(cmd: str) -> bool:
