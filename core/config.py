@@ -75,4 +75,14 @@ RECON_TOOLS = {
         "desc": "Passive subdomain discovery",
         "apt":  "subfinder",
     },
+    "crackmapexec": {
+        "cmd":  "crackmapexec smb {target} | tee {outfile}",
+        "desc": "SMB enumeration and credential testing (AD)",
+        "apt":  "crackmapexec",
+    },
+    "ldapsearch": {
+        "cmd":  "ldapsearch -x -H ldap://{target} -b '' -s base | tee {outfile}",
+        "desc": "LDAP anonymous bind enumeration (AD)",
+        "apt":  "ldap-utils",
+    },
 }
