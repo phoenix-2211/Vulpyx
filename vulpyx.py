@@ -27,8 +27,37 @@ from core.pdf_report       import generate_pdf
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 def _sep(c="─", col=DIM): print(f"{col}{c*_tw()}{R}")
-def _pause(m="Press ENTER to continue..."): input(f"\n  {DIM}{m}{R}\n")
-def _ask(p, d=""): v=input(f"  {CYN}❯{R}  {p} ").strip(); return v or d
+
+def _pause(m="Press ENTER to continue..."):
+    try:
+        # Flush stdin of any leftover bytes from tool output
+        import sys, termios, tty
+        try:
+            termios.tcflush(sys.stdin, termios.TCIFLUSH)
+        except Exception:
+            pass
+        input(f"\n  {DIM}{m}{R}\n")
+    except EOFError:
+        # stdin was closed by a subprocess — reopen from /dev/tty
+        try:
+            import sys
+            sys.stdin = open("/dev/tty", "r")
+            input(f"\n  {DIM}{m}{R}\n")
+        except Exception:
+            pass  # non-interactive — just continue
+
+def _ask(p, d=""):
+    try:
+        v = input(f"  {CYN}❯{R}  {p} ").strip()
+        return v or d
+    except EOFError:
+        try:
+            import sys
+            sys.stdin = open("/dev/tty", "r")
+            v = input(f"  {CYN}❯{R}  {p} ").strip()
+            return v or d
+        except Exception:
+            return d
 
 
 # ═══════════════════════════════════════════════════════════
