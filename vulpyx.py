@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VULPYX v3 – AI-Powered Penetration Testing Assistant
+VULPYX – AI-Powered Penetration Testing Assistant
 """
 import os, sys, datetime
 
@@ -111,9 +111,11 @@ def phase_target_detection(session: dict) -> dict:
     clear_screen(); show_banner()
     show_section("Target Type Detection")
 
-    recon_combined = load_file(
-        os.path.join(session["base"], "context", "recon_combined.txt")
-    )
+    recon_combined_path = os.path.join(session["base"], "context", "recon_combined.txt")
+    if not os.path.exists(recon_combined_path):
+        print_warn("recon_combined.txt not found — re-running recon phase.")
+        session = phase_recon(session)
+    recon_combined = load_file(recon_combined_path)
     ttype, strategy, evidence = detect_target_type(recon_combined)
     print_target_detection(ttype, strategy, evidence)
 
@@ -168,9 +170,8 @@ def phase_recon_analysis(session: dict) -> dict:
     save_file(os.path.join(session["base"], "analysis", "recon_analysis.txt"), analysis)
 
     # Build initial context with all enrichment
-    recon_combined = load_file(
-        os.path.join(session["base"], "context", "recon_combined.txt")
-    )
+    recon_combined_path = os.path.join(session["base"], "context", "recon_combined.txt")
+    recon_combined = load_file(recon_combined_path) if os.path.exists(recon_combined_path) else ""
     session["recon_analysis"] = analysis
     session["context"] = (
         f"TARGET: {session['target']}\n\n"
