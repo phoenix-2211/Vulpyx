@@ -1,106 +1,88 @@
 """
 VULPYX – Agent
-All AI-powered functions: methodology gen, analysis, decision, report.
+KEY DESIGN:
+- Every LLM call is a FRESH session (no accumulated context passed to Ollama)
+- Methodology Step 1: uses ONLY recon summary + prompt (lightweight)
+- Methodology Step 2+: uses ONLY the last step findings (not full history)
+- Keeps 1.5B model fast and prevents context overflow/timeouts
 """
 import os
 from core.ollama_client import query_ollama
-from core.utils         import load_prompt, load_file
-from core.banner        import thinking_dots, print_info
+from core.utils         import load_prompt
+from core.banner        import thinking_dots
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE        = os.path.dirname(os.path.abspath(__file__))
 _PROMPTS_DIR = os.path.join(_HERE, "..", "prompts")
 
-# ── Prompt helpers ─────────────────────────────────────────────────────────────
 def _load(name: str) -> str:
     return load_prompt(os.path.join(_PROMPTS_DIR, f"{name}.txt"))
 
+def _trim(text: str, max_chars: int = 2000) -> str:
+    """Keep tail (most recent) if over limit."""
+    if len(text) <= max_chars:
+        return text
+    return "[...trimmed...]\n" + text[-max_chars:]
 
-# ── Public functions ───────────────────────────────────────────────────────────
 
 def analyze_recon(recon_results: dict, target: str) -> str:
-    """
-    Feed all recon outputs into the LLM for initial analysis.
-    Returns a combined analysis string.
-    """
     combined = f"TARGET: {target}\n\n"
     for tool, output in recon_results.items():
-        combined += f"=== {tool.upper()} OUTPUT ===\n{output[:3000]}\n\n"
-
-    system  = _load("system")
-    prompt  = _load("analyze_output")
-    final   = system + "\n\n" + prompt.replace("{context}", combined)
-
+        combined += f"=== {tool.upper()} ===\n{output[:1500]}\n\n"
+    prompt = _load("system") + "\n\n" + _load("analyze_output").replace("{context}", combined)
     thinking_dots("Analyzing recon data", 2.0)
-    return query_ollama(final)
+    return query_ollama(prompt)
 
 
-def generate_methodology(context: str, step: int) -> str:
+def generate_methodology(context: str, step: int, recon_summary: str = "") -> str:
     """
-    Ask the LLM for the next best penetration testing step.
+    Step 1 → Recon summary + prompt ONLY (fresh start).
+    Step 2+ → Last step findings ONLY (not full history).
     """
-    enriched = (
-        f"Current step: {step}\n"
-        f"Previous findings and context:\n{context}"
-    )
-    system = _load("system")
-    prompt = _load("generate_methodology")
-    final  = system + "\n\n" + prompt.replace("{context}", enriched)
-
+    if step == 1:
+        enriched = (
+            f"Step: 1 (FIRST STEP)\n\n"
+            f"RECON SUMMARY:\n{_trim(recon_summary, 2000)}\n\n"
+            f"Based on the recon above, suggest the FIRST penetration testing step."
+        )
+    else:
+        enriched = (
+            f"Step: {step}\n\n"
+            f"LAST STEP FINDINGS:\n{_trim(context, 1500)}\n\n"
+            f"Suggest the NEXT logical step. Do NOT repeat steps already done."
+        )
+    prompt = _load("system") + "\n\n" + _load("generate_methodology").replace("{context}", enriched)
     thinking_dots(f"Generating Methodology {step}", 1.5)
-    return query_ollama(final)
+    return query_ollama(prompt)
 
 
 def analyze_step_output(method: str, user_output: str, recon_summary: str) -> str:
-    """
-    Analyze what the user found after running the suggested command.
-    """
     combined = (
-        f"SUGGESTED METHOD:\n{method}\n\n"
-        f"USER OUTPUT:\n{user_output}\n\n"
-        f"RECON CONTEXT (summary):\n{recon_summary[:1500]}"
+        f"SUGGESTED METHOD:\n{_trim(method, 500)}\n\n"
+        f"USER OUTPUT:\n{_trim(user_output, 1500)}\n\n"
+        f"RECON CONTEXT:\n{_trim(recon_summary, 500)}"
     )
-    system = _load("system")
-    prompt = _load("analyze_output")
-    final  = system + "\n\n" + prompt.replace("{context}", combined)
-
+    prompt = _load("system") + "\n\n" + _load("analyze_output").replace("{context}", combined)
     thinking_dots("Analyzing tool output", 1.5)
-    return query_ollama(final)
+    return query_ollama(prompt)
 
 
 def decide_next(analysis: str) -> str:
-    """
-    Ask the LLM: STOP (vuln confirmed) or CONTINUE?
-    """
-    system = _load("system")
-    prompt = _load("decision")
-    final  = system + "\n\n" + prompt.replace("{context}", analysis)
-
+    prompt = _load("system") + "\n\n" + _load("decision").replace("{context}", _trim(analysis, 1500))
     thinking_dots("Running decision engine", 1.0)
-    return query_ollama(final)
+    return query_ollama(prompt)
 
 
 def generate_final_report(context: str) -> str:
-    """
-    Generate the professional markdown vulnerability report.
-    """
-    system = _load("system")
-    prompt = _load("final_report")
-    final  = system + "\n\n" + prompt.replace("{context}", context)
-
+    prompt = _load("system") + "\n\n" + _load("final_report").replace("{context}", _trim(context, 2500))
     thinking_dots("Generating final report", 2.0)
-    return query_ollama(final)
+    return query_ollama(prompt)
 
 
 def vuln_confirmed(decision_text: str, analysis_text: str) -> bool:
-    """
-    Heuristic check: did the AI confirm a vulnerability?
-    Requires both decision AND analysis to agree – avoids false positives.
-    """
     d = decision_text.lower()
     a = analysis_text.lower()
-
-    stop_signal   = "stop"      in d
-    vuln_in_dec   = "confirmed" in d or "vulnerability" in d
-    vuln_in_ana   = "yes"       in a and "vulnerability" in a
-
-    return stop_signal and vuln_in_dec and vuln_in_ana
+    return (
+        "stop"       in d and
+        ("confirmed" in d or "vulnerability" in d) and
+        "yes"        in a and "vulnerability" in a
+    )
